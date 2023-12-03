@@ -1,0 +1,153 @@
+struct DListNode {
+    
+    int key;
+    int val;
+    DListNode* next;
+    DListNode* prev;
+
+    DListNode(): key(0),val(0),next(nullptr),prev(nullptr) {}
+    DListNode(int x, int y): key(x), val(y), next(nullptr),prev(nullptr) {}
+};
+
+class LRUCache {
+    private:
+    int capacity;
+    DListNode* head = nullptr;
+    DListNode* tail = nullptr;
+    unordered_map<int,DListNode*> table;
+
+public:
+    LRUCache(int capacity) {
+        this->capacity = capacity;
+    }
+    
+    void printList(){
+        DListNode *curr = head;
+        while(curr != nullptr){
+            cout<<curr->key<<" ";
+            curr= curr->next;
+        }
+        cout<<endl;
+    }
+    int get(int key) {
+        
+        if(table.find(key) != table.end()){
+            DListNode *currnode = table[key];
+            if(head == tail || tail == currnode){
+                return table[key]->val;
+            }
+            if(tail != currnode){
+
+                if(head == currnode){
+                    head = currnode->next;
+                    head->prev = nullptr;
+                }
+                else{
+                    //Remove from the current place
+                    
+                    DListNode *prevnode = currnode->prev;
+                    prevnode->next = currnode->next;
+                    currnode->next->prev = prevnode;
+
+                }
+
+                //Add the node to the tail
+                    tail->next = currnode;
+                    currnode->prev = tail;
+                    tail = currnode;
+                    tail->next = nullptr;
+                
+            }
+            return table[key]->val;
+        }
+        return -1;
+    }
+    
+    void put(int key, int value) {
+        int size = table.size();
+        
+        /*
+            If key not found:
+            - Add the node in the hash table
+            - Add the node at the tail of the LL
+                - If LL is empty
+                - If atleast 1 node
+        */
+        if(table.find(key) == table.end()){
+            DListNode *newnode = new DListNode(key,value);
+
+            if(head == nullptr){
+                head = tail = newnode;
+            } else{
+                if(size < capacity){
+                    tail->next = newnode;
+                    newnode->prev = tail;
+                    tail = newnode;
+                } else{
+                    DListNode *currhead = head;
+                    if(capacity == 1){
+                        head = tail = newnode;
+                    } else{
+                        head = head->next;
+                        head->prev = nullptr;
+
+                        //Add the node to the tail
+                        tail->next = newnode;
+                        newnode->prev = tail;
+                        tail = newnode;
+                        tail->next=nullptr;
+                    }
+                    table.erase(currhead->key);
+                }
+                
+            }
+            table[key] = newnode;
+        } 
+        
+        /*
+            If key found:
+            - Update val of the node
+            - put the node at the tail
+                - if only 1 node in LL -> dont do anything
+                - if already at tail -> dont do anything
+                - Remove from current position; Place it at the tail
+        */
+        else{
+            DListNode *currnode = table[key];
+            currnode->val = value;
+
+            if(head == tail || tail == currnode){
+                return;
+            }
+            if(tail != currnode){
+                if(head == currnode){
+                    head = currnode->next;
+                    head->prev = nullptr;
+                }
+                else{
+                    //Remove from the current place
+                    DListNode *prevnode = currnode->prev;
+                    prevnode->next = currnode->next;
+                    currnode->next->prev = prevnode;
+
+                }
+
+                //Add the node to the tail
+                    tail->next = currnode;
+                    currnode->prev = tail;
+                    tail = currnode;
+                    tail->next = nullptr;
+                
+            }
+
+        }
+
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
