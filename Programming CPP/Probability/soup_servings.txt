@@ -1,0 +1,37 @@
+class Solution {
+private:
+    int options[4][2] = {{100,0},{75,25},{50,50},{25,75}};
+public:
+    pair<double,double> dp(int a, int b,unordered_map<int,unordered_map<int,pair<double,double>>> & prob){
+        if(prob.find(a) != prob.end()){
+            if(prob[a].find(b) != prob[a].end())
+                return prob[a][b];
+        }
+        double a_ = 0.0;
+        double ab = 0.0;
+        for(int i =0; i<4; ++i){
+            if(a-options[i][0] <=0 && b-options[i][1] <= 0){
+                ab += 0.25;
+            } else if(a-options[i][0] <=0){
+                a_ += 0.25;
+            } else if(b-options[i][1] <= 0){
+                continue;
+            }
+            else {
+                a_ += 0.25*dp(max(0,a-options[i][0]),max(0,b-options[i][1]), prob).first;
+                ab +=  0.25*dp(max(0,a-options[i][0]),max(0,b-options[i][1]), prob).second;
+            }
+        }
+        
+        prob[a][b].first = a_;
+        prob[a][b].second = ab;
+        return prob[a][b];
+
+    }
+    double soupServings(int n) {
+        if(n>=4800)return 1.0;
+        unordered_map<int,unordered_map<int,pair<double,double>>> prob;
+        pair<double,double> x = dp(n,n,prob);
+        return x.first + x.second*0.5;
+    }
+};
