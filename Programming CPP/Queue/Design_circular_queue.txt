@@ -1,0 +1,72 @@
+//https://leetcode.com/problems/design-circular-queue/editorial/
+
+#include<iostream>
+#include<mutex>
+
+class MyCircularQueue {
+private:
+    int* queue = nullptr;
+    int front;
+    int capacity;
+    int count;
+    mutex mtx;
+
+public:
+    MyCircularQueue(int k) {
+        queue = new int[k];
+        front = -1;
+        capacity = k;
+        count = 0;
+    }
+    
+    bool enQueue(int value) {
+        lock_guard<mutex> lock(mtx);
+        if(isFull())
+            return false;
+        front = (front+1)%capacity;
+        ++count;
+        queue[front] = value;
+        return true;
+    }
+    
+    bool deQueue() {
+      lock_guard<mutex> lock(mtx);
+        if(isEmpty())
+            return false;
+        --count;
+        return true;
+    }
+    
+    int Front() {
+      
+        if(isEmpty())
+            return -1;
+        return queue[(front + 1 - count+capacity)%capacity];
+    }
+    
+    int Rear() {
+        if(isEmpty())
+            return -1;
+        return queue[front];
+    }
+    
+    bool isEmpty() {
+        return count == 0;
+    }
+    
+    bool isFull() {
+        return count == capacity;
+    }
+  
+};
+
+/**
+ * Your MyCircularQueue object will be instantiated and called as such:
+ * MyCircularQueue* obj = new MyCircularQueue(k);
+ * bool param_1 = obj->enQueue(value);
+ * bool param_2 = obj->deQueue();
+ * int param_3 = obj->Front();
+ * int param_4 = obj->Rear();
+ * bool param_5 = obj->isEmpty();
+ * bool param_6 = obj->isFull();
+ */
