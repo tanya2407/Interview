@@ -1,0 +1,35 @@
+class Solution {
+public:
+    bool isNumeric(char c){
+        return c>='0' && c<='9';
+    }
+    int myAtoi(string s) {
+        int i = 0;
+        int ans = 0;
+        while(i<s.size() && s[i]==' ')
+            i++;
+        bool isPos = true;
+        if(s[i] == '-'){
+            isPos = false;
+            i++;
+        } else if(s[i] == '+'){
+            isPos = true;
+            i++;
+        }
+        while(i<s.size() && s[i]=='0')
+            i++;
+        while(i<s.size() && isNumeric(s[i])){
+            int digit = s[i]-'0';
+
+            if((ans > INT_MAX/10) || (ans == INT_MAX/10 && digit>INT_MAX%10)){
+                return isPos? INT_MAX : INT_MIN;
+            }
+
+            ans = ans*10 + digit;
+            i++;
+            
+        }
+        return isPos? ans : (-1*ans);
+    }
+    
+};
