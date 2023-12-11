@@ -1,0 +1,53 @@
+/*
+https://leetcode.com/problems/the-dining-philosophers/description/
+*/
+
+#include<semaphore.h>
+class DiningPhilosophers {
+    sem_t sem[4];
+public:
+    DiningPhilosophers() {
+        for(int i =0;i<5;i++){
+            sem_init(&sem[i],0,1);
+        }
+    }
+
+    void wantsToEat(int philosopher,
+                    function<void()> pickLeftFork,
+                    function<void()> pickRightFork,
+                    function<void()> eat,
+                    function<void()> putLeftFork,
+                    function<void()> putRightFork) {
+        
+        if(philosopher < 4){
+            sem_wait(&sem[philosopher]);
+            sem_wait(&sem[(philosopher+ 1)%5]);
+            pickLeftFork();
+		    pickRightFork();
+        } else {
+            sem_wait(&sem[(philosopher+ 1)%5]);
+            sem_wait(&sem[philosopher]);
+            pickRightFork();
+		    pickLeftFork();
+        }
+
+        eat();
+
+        if(philosopher < 4){
+            putLeftFork();
+            putRightFork();
+            sem_post(&sem[philosopher]);
+            sem_post(&sem[(philosopher+ 1)%5]);
+		    
+        } else {
+            putRightFork();
+            putLeftFork();
+            sem_post(&sem[(philosopher+ 1)%5]);
+            sem_post(&sem[philosopher]);
+		    
+        }
+
+        
+
+    }
+};
